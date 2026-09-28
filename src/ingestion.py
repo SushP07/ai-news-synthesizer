@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 class RSSIngestionEngine:
     def __init__(self, digests_dir: str = "digests"):
         self.digests_dir = digests_dir
+        self.gap_days = 0  # Track gap for naming purposes
 
     def get_last_digest_date(self) -> tuple:
         """
@@ -62,6 +63,7 @@ class RSSIngestionEngine:
         """
         # 1. Fetch our dynamic historical watermark date boundary
         last_digest_date, gap_days = self.get_last_digest_date()
+        self.gap_days = gap_days  # Store for pipeline to use for naming
         now_utc = datetime.now(timezone.utc)
 
         print(f"⏱️ Scan Window Baseline: Ingesting articles published between {last_digest_date} and {now_utc} (T-{gap_days} days)")

@@ -58,6 +58,7 @@ class AIEditorialEngine:
                     print(f"⚠️ API Warning: {e}. Retrying execution pass in {sleep_time} seconds...")
                     time.sleep(sleep_time)
                 else:
-                    # Out of attempts: Return a clean engineering fallback message instead of breaking the file
-                    print("❌ API Error: Max resilience thresholds exhausted.")
-                    return f"## Data Processing Hold\n\nUnable to complete AI sentiment extraction today due to temporary upstream service limits.\n\n### Raw Source Payload Status\n- Total Ingested Items Available: Valid\n- Upstream Error Log: {str(e)}"
+                    # Out of attempts: Fail the pipeline instead of graceful degradation
+                    error_msg = f"❌ API Error: Max resilience thresholds exhausted. {str(e)}"
+                    print(error_msg)
+                    raise RuntimeError(error_msg) from e

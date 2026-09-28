@@ -12,9 +12,13 @@ class DigestPipeline:
         self.ingestion_engine = RSSIngestionEngine(digests_dir=output_dir)
         self.editorial_engine = AIEditorialEngine() # Instantiated as editorial_engine
 
-    def _get_next_version(self, today_str: str) -> int:
+    def _get_next_version(self, today_str: str, is_catchup: bool = False) -> int:
         """Find the next available version number for today's digest."""
-        search_pattern = os.path.join(self.output_dir, f"{today_str}_daily_brief_v*.md")
+        if is_catchup:
+            search_pattern = os.path.join(self.output_dir, f"{today_str}_brief_missed_out_v*.md")
+        else:
+            search_pattern = os.path.join(self.output_dir, f"{today_str}_daily_brief_v*.md")
+
         existing_files = glob.glob(search_pattern)
 
         if not existing_files:
@@ -23,7 +27,7 @@ class DigestPipeline:
         versions = []
         for file_path in existing_files:
             filename = os.path.basename(file_path)
-            # Extract version number from "YYYY-MM-DD_daily_brief_vX.md"
+            # Extract version number from "YYYY-MM-DD_*_vX.md"
             try:
                 version_str = filename.split("_v")[-1].replace(".md", "")
                 versions.append(int(version_str))
@@ -32,15 +36,28 @@ class DigestPipeline:
 
         return max(versions) + 1 if versions else 1
 
-    def _persist_to_disk(self, content: str) -> str:
-        """Internal helper handling file persistence with versioning."""
+    def _persist_to_disk(self, content: str, gap_days: int = 0) -> str:
+        """Internal helper handling file persistence with versioning.
+
+        Args:
+            content: Digest markdown content
+            gap_days: Days since last digest (for naming catch-up digests)
+        """
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
         today_str = datetime.now().strftime("%Y-%m-%d")
-        version = self._get_next_version(today_str)
-        file_path = os.path.join(self.output_dir, f"{today_str}_daily_brief_v{version}.md")
-        meta_header = f"# Daily AI Research Digest\n*Generated on: {datetime.now().strftime('%B %d, %Y at %H:%M')}*\n\n"
+        is_catchup = gap_days > 30
+        version = self._get_next_version(today_str, is_catchup=is_catchup)
+
+        if is_catchup:
+            file_path = os.path.join(self.output_dir, f"{today_str}_brief_missed_out_v{version}.md")
+            title = f"# Missed Out - AI Research Digest (Gap: {gap_days} days)\n*Catch-up brief for {gap_days} days of articles*"
+        else:
+            file_path = os.path.join(self.output_dir, f"{today_str}_daily_brief_v{version}.md")
+            title = f"# Daily AI Research Digest\n*Generated on: {datetime.now().strftime('%B %d, %Y at %H:%M')}*"
+
+        meta_header = f"{title}\n\n"
 
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(meta_header + content)
@@ -66,7 +83,7 @@ class DigestPipeline:
         digest_content = self.editorial_engine.generate_digest(raw_data)
 
         print("💾 Persisting generated markdown intelligence brief to disk...")
-        saved_path = self._persist_to_disk(digest_content)
+        saved_path = self._persist_to_disk(digest_content, gap_days=self.ingestion_engine.gap_days)
 
         print(f"✅ Success! Daily brief compiled cleanly at: {saved_path}")
         return "Pipeline run executed successfully."
