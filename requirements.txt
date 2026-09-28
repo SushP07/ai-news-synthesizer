@@ -1,4 +1,6 @@
 agno==2.6.11
 feedparser==6.0.12
 google-genai==2.7.0
+groq==1.7.0
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
