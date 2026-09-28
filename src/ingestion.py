@@ -11,15 +11,15 @@ class RSSIngestionEngine:
 
     def get_last_digest_date(self) -> datetime:
         """
-        Scans the persistence directory for historical briefs to extract 
-        the latest execution watermark. Falls back to T-1 if empty.
+        Scans the persistence directory for historical briefs to extract
+        the latest execution watermark. Falls back to T-7 if empty (extended for testing).
         """
         search_path = os.path.join(self.digests_dir, "*_daily_brief.md")
         existing_briefs = glob.glob(search_path)
-        
+
         if not existing_briefs:
-            print("⚠️ No historical artifacts identified. Defaulting scan window to T-1.")
-            return datetime.now(timezone.utc) - timedelta(days=1)
+            print("⚠️ No historical artifacts identified. Defaulting scan window to T-7.")
+            return datetime.now(timezone.utc) - timedelta(days=7)
             
         dates = []
         for file_path in existing_briefs:
@@ -33,9 +33,11 @@ class RSSIngestionEngine:
                 continue
                 
         if not dates:
-            return datetime.now(timezone.utc) - timedelta(days=1)
-            
-        return max(dates)
+            return datetime.now(timezone.utc) - timedelta(days=7)
+
+        # For testing: extend look-back to 7 days from the latest digest
+        latest_digest_date = max(dates)
+        return latest_digest_date - timedelta(days=7)
 
     def scrape_feeds(self, sources: list) -> str:
         """
