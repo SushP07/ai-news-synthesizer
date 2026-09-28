@@ -1,4 +1,5 @@
 import os
+import glob
 from datetime import datetime
 from src.config_loader import ConfigLoader
 from src.ingestion import RSSIngestionEngine
@@ -11,13 +12,34 @@ class DigestPipeline:
         self.ingestion_engine = RSSIngestionEngine(digests_dir=output_dir)
         self.editorial_engine = AIEditorialEngine() # Instantiated as editorial_engine
 
+    def _get_next_version(self, today_str: str) -> int:
+        """Find the next available version number for today's digest."""
+        search_pattern = os.path.join(self.output_dir, f"{today_str}_daily_brief_v*.md")
+        existing_files = glob.glob(search_pattern)
+
+        if not existing_files:
+            return 1
+
+        versions = []
+        for file_path in existing_files:
+            filename = os.path.basename(file_path)
+            # Extract version number from "YYYY-MM-DD_daily_brief_vX.md"
+            try:
+                version_str = filename.split("_v")[-1].replace(".md", "")
+                versions.append(int(version_str))
+            except (ValueError, IndexError):
+                continue
+
+        return max(versions) + 1 if versions else 1
+
     def _persist_to_disk(self, content: str) -> str:
-        """Internal helper handling file persistence encapsulation."""
+        """Internal helper handling file persistence with versioning."""
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
         today_str = datetime.now().strftime("%Y-%m-%d")
-        file_path = os.path.join(self.output_dir, f"{today_str}_daily_brief.md")
+        version = self._get_next_version(today_str)
+        file_path = os.path.join(self.output_dir, f"{today_str}_daily_brief_v{version}.md")
         meta_header = f"# Daily AI Research Digest\n*Generated on: {datetime.now().strftime('%B %d, %Y at %H:%M')}*\n\n"
 
         with open(file_path, "w", encoding="utf-8") as file:
