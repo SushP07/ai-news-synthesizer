@@ -45,6 +45,7 @@ jobs:
             git push
           else
             echo "No new digest generated today."
+          fi
 
       - name: Upload Digest Artifact
         if: always()
