@@ -9,17 +9,22 @@ class RSSIngestionEngine:
     def __init__(self, digests_dir: str = "digests"):
         self.digests_dir = digests_dir
 
-    def get_last_digest_date(self) -> datetime:
+    def get_last_digest_date(self) -> tuple:
         """
         Scans the persistence directory for historical briefs to extract
-        the latest execution watermark. Falls back to T-7 if empty (extended for testing).
+        the latest PREVIOUS digest (excluding today) and calculate the dynamic gap.
+
+        Returns: (last_previous_digest_date, gap_days)
         """
-        search_path = os.path.join(self.digests_dir, "*_daily_brief.md")
+        search_path = os.path.join(self.digests_dir, "*_daily_brief*.md")
         existing_briefs = glob.glob(search_path)
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
         if not existing_briefs:
-            print("⚠️ No historical artifacts identified. Defaulting scan window to T-1.")
-            return datetime.now(timezone.utc) - timedelta(days=1)
+            print("⚠️ No historical digests found. Defaulting scan window to T-1.")
+            today = datetime.now(timezone.utc)
+            default_date = today - timedelta(days=1)
+            return default_date, 1
 
         dates = []
         for file_path in existing_briefs:
@@ -28,27 +33,38 @@ class RSSIngestionEngine:
             try:
                 parsed_date = datetime.strptime(date_str, "%Y-%m-%d")
                 parsed_date = parsed_date.replace(tzinfo=timezone.utc)
-                dates.append(parsed_date)
+
+                # Exclude today's digests - we want the last PREVIOUS digest
+                if date_str != today_str:
+                    dates.append(parsed_date)
             except ValueError:
                 continue
 
         if not dates:
-            return datetime.now(timezone.utc) - timedelta(days=1)
+            print("⚠️ No previous digests found. Defaulting scan window to T-1.")
+            today = datetime.now(timezone.utc)
+            default_date = today - timedelta(days=1)
+            return default_date, 1
 
-        # Return the latest digest date to establish the scan window
-        latest_digest_date = max(dates)
-        return latest_digest_date
+        # Calculate dynamic gap from last PREVIOUS digest to today
+        last_previous_digest_date = max(dates)
+        today = datetime.now(timezone.utc)
+        gap_days = (today - last_previous_digest_date).days
+
+        print(f"📊 Gap Analysis: Last previous digest on {last_previous_digest_date.strftime('%Y-%m-%d')}, gap = T-{gap_days} days")
+
+        return last_previous_digest_date, gap_days
 
     def scrape_feeds(self, sources: list) -> str:
         """
-        Iterates over target feed URLs and harvests posts published 
+        Iterates over target feed URLs and harvests posts published
         strictly within the calculated execution tracking window.
         """
         # 1. Fetch our dynamic historical watermark date boundary
-        last_digest_date = self.get_last_digest_date()
+        last_digest_date, gap_days = self.get_last_digest_date()
         now_utc = datetime.now(timezone.utc)
-        
-        print(f"⏱️ Scan Window Baseline: Ingesting articles published between {last_digest_date} and {now_utc}")
+
+        print(f"⏱️ Scan Window Baseline: Ingesting articles published between {last_digest_date} and {now_utc} (T-{gap_days} days)")
         
         scraped_payload = []
 
