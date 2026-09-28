@@ -1,5 +1,16 @@
 {
-    "OpenAI": "https://openai.com/news/rss.xml",
-    "Google_AI": "https://blog.google/technology/ai/rss/",
-    "Hugging_Face": "https://huggingface.co/blog/feed.xml"
+    "sources": [
+        {
+            "name": "OpenAI",
+            "url": "https://openai.com/news/rss.xml"
+        },
+        {
+            "name": "Google AI",
+            "url": "https://blog.google/technology/ai/rss/"
+        },
+        {
+            "name": "Hugging Face",
+            "url": "https://huggingface.co/blog/feed.xml"
+        }
+    ]
 }

@@ -1,6 +1,7 @@
 import os
 import glob
 import time
+import json
 import feedparser
 from datetime import datetime, timezone, timedelta
 
@@ -66,18 +67,17 @@ class RSSIngestionEngine:
                 # Convert the raw RSS feed time tuple to a timezone-aware datetime object
                 post_time = datetime.fromtimestamp(time.mktime(entry.published_parsed), tz=timezone.utc)
                 
-                # # Clean, safe evaluation boundary loop tracking the gap window
+                # Clean, safe evaluation boundary loop tracking the gap window
                 if last_digest_date < post_time <= now_utc:
                     scraped_payload.append({
                         "source": source_name,
                         "title": entry.title,
                         "link": entry.link,
-                        "summary": entry.get("summary", "No summary provided.")
+                        "summary": getattr(entry, 'summary', 'No summary provided.')
                     })
-                # # ------------------------------------
 
-        # 3. Serialize gathered items into a raw structural payload block for the LLM Editor
+        # 3. Serialize gathered items into a JSON payload for the LLM Editor
         if not scraped_payload:
-            return ""
-            
-        return bytes(str(scraped_payload), 'utf-8').decode('utf-8')
+            return json.dumps([])
+
+        return json.dumps(scraped_payload)

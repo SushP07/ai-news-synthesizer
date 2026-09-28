@@ -29,12 +29,23 @@ class AIEditorialEngine:
         for attempt in range(max_retries):
             try:
                 response = self.agent.run(raw_data_payload)
-                
+
+                # Extract content robustly (handle different agno versions)
+                content = None
+                if hasattr(response, 'content'):
+                    content = response.content
+                elif hasattr(response, 'message'):
+                    content = response.message
+                elif isinstance(response, str):
+                    content = response
+                else:
+                    content = str(response)
+
                 # Structural check: If the API returned a successful text block containing a 503 error string
-                if "503" in response.content or "experiencing high demand" in response.content:
+                if "503" in content or "experiencing high demand" in content:
                     raise IOError("Gemini API overloaded (503 Service Unavailable).")
-                    
-                return response.content
+
+                return content
 
             except Exception as e:
                 # If we have remaining attempts, calculate the backoff delay
@@ -45,4 +56,4 @@ class AIEditorialEngine:
                 else:
                     # Out of attempts: Return a clean engineering fallback message instead of breaking the file
                     print("❌ API Error: Max resilience thresholds exhausted.")
-                    return f"## Data Processing Hold\n\nUnable to complete AI sentiment extraction today due to temporary upstream upstream service limits.\n\n### Raw Source Payload Status\n- Total Ingested Items Available: Valid\n- Upstream Error Log: {str(e)}"
+                    return f"## Data Processing Hold\n\nUnable to complete AI sentiment extraction today due to temporary upstream service limits.\n\n### Raw Source Payload Status\n- Total Ingested Items Available: Valid\n- Upstream Error Log: {str(e)}"

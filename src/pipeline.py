@@ -27,26 +27,24 @@ class DigestPipeline:
     def run(self):
         """Orchestrates the ingestion, processing, and output generation."""
         print("📁 Loading news source channels from JSON config...")
-        # FIX 1: Route configuration extraction through the config_loader instance
         config_data = self.config_loader.load_sources()
-        
-        # Safe extraction handle regardless of whether sources.json maps a root list or dictionary wrapper
-        sources = config_data.get("sources", []) if isinstance(config_data, dict) else config_data
-        
+        sources = config_data.get("sources", [])
+
+        if not sources:
+            raise ValueError("No sources found in configuration file. Check config/sources.json.")
+
         print("📡 Triggering self-healing adaptive gap scan...")
         raw_data = self.ingestion_engine.scrape_feeds(sources)
 
-        if not raw_data:
+        if not raw_data or raw_data == "[]":
             print("📅 No new articles found within the gap scan window today. Exiting smoothly.")
             return "No updates."
 
         print("🤖 Forwarding collected data delta to AI Editorial Engine...")
-        # FIX 2: Corrected attribute call name from editor_engine to self.editorial_engine
         digest_content = self.editorial_engine.generate_digest(raw_data)
-        
+
         print("💾 Persisting generated markdown intelligence brief to disk...")
-        # FIX 3: Route saving handle through the existing _persist_to_disk method
         saved_path = self._persist_to_disk(digest_content)
-        
+
         print(f"✅ Success! Daily brief compiled cleanly at: {saved_path}")
         return "Pipeline run executed successfully."

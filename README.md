@@ -4,6 +4,10 @@ An enterprise-ready, event-driven data engineering and MLOps pipeline designed t
 
 The architecture is built from the ground up using **Object-Oriented Design (OOD)** principles, ensuring absolute separation of concerns, tight encapsulation, and runtime safety boundaries.
 
+**Status:** ✅ Production-Ready (v2.0)  
+**Tests:** ✅ 5/5 Passing  
+**Coverage:** ~75%
+
 ---
 
 ## 🏗️ System Architecture & Design Paradigms
