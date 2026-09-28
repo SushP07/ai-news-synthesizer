@@ -18,8 +18,8 @@ class RSSIngestionEngine:
         existing_briefs = glob.glob(search_path)
 
         if not existing_briefs:
-            print("⚠️ No historical artifacts identified. Defaulting scan window to T-7.")
-            return datetime.now(timezone.utc) - timedelta(days=7)
+            print("⚠️ No historical artifacts identified. Defaulting scan window to T-30.")
+            return datetime.now(timezone.utc) - timedelta(days=30)
             
         dates = []
         for file_path in existing_briefs:
@@ -33,11 +33,11 @@ class RSSIngestionEngine:
                 continue
                 
         if not dates:
-            return datetime.now(timezone.utc) - timedelta(days=7)
+            return datetime.now(timezone.utc) - timedelta(days=30)
 
-        # For testing: extend look-back to 7 days from the latest digest
+        # For testing: extend look-back to 30 days from the latest digest
         latest_digest_date = max(dates)
-        return latest_digest_date - timedelta(days=7)
+        return latest_digest_date - timedelta(days=30)
 
     def scrape_feeds(self, sources: list) -> str:
         """
