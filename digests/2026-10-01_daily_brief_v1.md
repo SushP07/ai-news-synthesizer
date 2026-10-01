@@ -1,0 +1,15 @@
+# Daily AI Research Digest
+*Generated on: October 01, 2026 at 12:24*
+
+**OpenAI**
+*   **Model Distillation Defense:** OpenAI disrupted a coordinated campaign to extract protected model reasoning, implementing strengthened defenses against adversarial distillation attempts. [https://openai.com/index/disrupting-a-coordinated-model-distillation-campaign](https://openai.com/index/disrupting-a-coordinated-model-distillation-campaign)
+*   **GPT-6.1 Sol Release:** Introduced GPT-6.1 Sol, achieving near-Astra intelligence for coding, computer use, and professional tasks at one-fifth of Astra’s standard API token prices for both input and output. [https://openai.com/index/introducing-gpt-6-1-sol](https://openai.com/index/introducing-gpt-6-1-sol)
+*   **DevDay 2026 Recap:** Summarized over 20 announcements, including updates to GPT-6 Astra, ChatGPT, Codex, new APIs, security enhancements, and new builder tools, indicating broad platform development. [https://openai.com/index/devday-2026-recap](https://openai.com/index/devday-2026-recap)
+*   **Introducing 'dots' Proactive Assistants:** Launched 'dots', proactive AI assistants designed to manage complex projects and everyday tasks autonomously, maintaining user control while advancing workflows. [https://openai.com/index/introducing-dots](https://openai.com/index/introducing-dots)
+*   **Frontier AI Safety Cases:** Published early guidelines for safety cases in frontier AI training, encompassing technical safeguards, operational practices, and protocols for investigating misalignment incidents. [https://openai.com/index/towards-safety-cases-for-frontier-ai-training](https://openai.com/index/towards-safety-cases-for-frontier-ai-training)
+
+**Hugging Face**
+*   **Open TTS Leaderboard:** Launched a new leaderboard for scalable evaluation of multilingual Text-to-Speech and voice cloning models, providing critical infrastructure for benchmarking and development in speech synthesis. [https://huggingface.co/blog/open-tts-leaderboard](https://huggingface.co/blog/open-tts-leaderboard)
+*   **NVIDIA Kumo Tabular Performance:** Highlighted NVIDIA Kumo Tabular's new accuracy-efficiency frontier for tabular prediction, signaling advancements in specific machine learning task performance. [https://huggingface.co/blog/nvidia/kumo-tabular](https://huggingface.co/blog/nvidia/kumo-tabular)
+*   **Source-Aware Verification for MCP Agents:** Introduced methodology for source-aware verification in Multiverse Computing AI (MCP) Agents, emphasizing the importance of verifying information source veracity for agent reliability. [https://huggingface.co/blog/MultiverseComputingCAI/getting-the-source-right-not-just-the-fact-source](https://huggingface.co/blog/MultiverseComputingCAI/getting-the-source-right-not-just-the-fact-source)
+*   **Holo4 Generalist Agents:** Announced Holo4, a new agent designed to power generalist computer-use agents, advancing capabilities for versatile and autonomous AI systems. [https://huggingface.co/blog/Hcompany/holo4](https://huggingface.co/blog/Hcompany/holo4)
